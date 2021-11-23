@@ -7,6 +7,11 @@ useful cli json tools
 
 ## install
 ```
+brew tap bilal-bhatti/homebrew-taps
+brew install jt
+```
+or
+```
 go install github.com/bilal-bhatti/jt/cmd/jt@latest
 ```
 
