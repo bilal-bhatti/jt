@@ -1,6 +1,11 @@
 # jt
 useful cli json tools
 
+## install
+```
+go install github.com/bilal-bhatti/jt/cmd/jt@latest
+```
+
 ## commands
 get started
 
