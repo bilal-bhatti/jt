@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 
-	tonic "github.com/bilal-bhatti/jt/pkg"
+	jt "github.com/bilal-bhatti/jt/pkg"
 	"github.com/google/subcommands"
 )
 
@@ -26,7 +26,7 @@ func (*templateCmd) Synopsis() string {
 func (*templateCmd) Usage() string {
 	return `
 generate template from input
-	example: tonic template -i input.json -o template.json
+	example: jt template -i input.json -o template.json
 
 `
 }
@@ -58,7 +58,7 @@ func (t *templateCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface
 		orPanic(err)
 	}
 
-	tonic.Templatize(input)
+	jt.Templatize(input)
 
 	bites, err := json.MarshalIndent(input, "", "\t")
 	orPanic(err)

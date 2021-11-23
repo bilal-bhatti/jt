@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 
-	tonic "github.com/bilal-bhatti/jt/pkg"
+	jt "github.com/bilal-bhatti/jt/pkg"
 	"github.com/google/subcommands"
 )
 
@@ -26,7 +26,7 @@ func (*applyCmd) Synopsis() string {
 func (*applyCmd) Usage() string {
 	return `
 apply template to input:
-	example: tonic apply -i input.json -t template.json -o out.json
+	example: jt apply -i input.json -t template.json -o out.json
 
 `
 }
@@ -67,7 +67,7 @@ func (a *applyCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 	err = json.Unmarshal(yf, &template)
 	orPanic(err)
 
-	tonic.Apply(input, template)
+	jt.Apply(input, template)
 
 	bites, err := json.MarshalIndent(template, "", "\t")
 	orPanic(err)
