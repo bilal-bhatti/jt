@@ -42,7 +42,6 @@ func Apply(input, template interface{}) {
 }
 
 func apply(source interface{}, container, k, template reflect.Value) {
-	// Indirect through pointers and interfaces
 	for template.Kind() == reflect.Ptr || template.Kind() == reflect.Interface {
 		template = template.Elem()
 	}
@@ -62,7 +61,7 @@ func apply(source interface{}, container, k, template reflect.Value) {
 		}
 
 		iter := query.Run(source)
-		for {
+		for { // TODO: clean up this for loop
 			lookup, ok := iter.Next()
 			if !ok {
 				break
