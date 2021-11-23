@@ -15,13 +15,9 @@ jt help template
 jt help apply
 ```
 
-
 ### template 
 generate a jq based transformation template
 
 ### apply
 apply template to input json
 
-### more 
- ...
- 
