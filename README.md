@@ -1,4 +1,8 @@
 # jt
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/bilal-bhatti/jt)](https://goreportcard.com/report/github.com/bilal-bhatti/jt)
+
+
 useful cli json tools
 
 ## install
