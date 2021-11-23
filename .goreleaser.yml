@@ -15,7 +15,7 @@ builds:
       - darwin
     ldflags:
       - -X main.Version={{.Version}}
-    main: ./cmd/jt/*
+    main: ./cmd/jt
 brews:
   -
     tap:
