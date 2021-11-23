@@ -20,7 +20,7 @@ brews:
   -
     tap:
       owner: bilal-bhatti
-      name: homebrew
+      name: homebrew-taps
 archives:
   - replacements:
       darwin: Darwin

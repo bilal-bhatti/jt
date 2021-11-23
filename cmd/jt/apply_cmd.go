@@ -24,6 +24,7 @@ func (*applyCmd) Synopsis() string {
 }
 
 func (*applyCmd) Usage() string {
+	log.Println("version: ", Version)
 	return `
 apply template to input:
 	example: jt apply -i input.json -t template.json -o out.json

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"log"
 	"os"
 
 	"github.com/google/subcommands"
@@ -33,8 +32,6 @@ func main() {
 		"template": true,
 		"apply":    true,
 	}
-
-	log.Println("version: ", Version)
 
 	// Default to running the "template" command.
 	if args := flag.Args(); len(args) == 0 || !allCmds[args[0]] {

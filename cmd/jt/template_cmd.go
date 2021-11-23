@@ -24,6 +24,8 @@ func (*templateCmd) Synopsis() string {
 }
 
 func (*templateCmd) Usage() string {
+	log.Println("version: ", Version)
+
 	return `
 generate template from input
 	example: jt template -i input.json -o template.json
