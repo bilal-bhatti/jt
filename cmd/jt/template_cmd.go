@@ -28,15 +28,19 @@ func (*templateCmd) Usage() string {
 
 	return `
 generate template from input
-	example: jt template -i input.json -o template.json
+
+	examples: 
+		cat input.json | jt template 
+		jt template -i input.json -o template
+		jt template -i input.json -o template.json
 
 `
 }
 
 func (t *templateCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&t.debug, "d", false, "run with trace logging enabled")
-	f.StringVar(&t.input, "i", "", "input file")
-	f.StringVar(&t.out, "o", "", "out file")
+	f.StringVar(&t.input, "i", "", "read from STDIN or file, -i <file.json>")
+	f.StringVar(&t.out, "o", "", "write to STDOUT or file, -o <file.json>")
 }
 
 func (t *templateCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {

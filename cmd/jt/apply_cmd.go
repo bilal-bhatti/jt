@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"io/ioutil"
 	"log"
@@ -26,20 +27,29 @@ func (*applyCmd) Synopsis() string {
 func (*applyCmd) Usage() string {
 	log.Println("version: ", Version)
 	return `
-apply template to input:
-	example: jt apply -i input.json -t template.json -o out.json
+apply jq tranformation template to input
+
+	examples: 
+		cat input.json | jt apply -t template.json 
+		cat input.json | jt apply -t template.json -o template.json
+		jt apply -i input.json -t template.json -o template.json
 
 `
 }
 
 func (a *applyCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&a.debug, "d", false, "run with trace logging enabled")
-	f.StringVar(&a.input, "i", "", "input file")
-	f.StringVar(&a.template, "t", "", "template file")
-	f.StringVar(&a.out, "o", "", "out file")
+	f.StringVar(&a.input, "i", "", "read from STDIN or file, -i <file.json>")
+	f.StringVar(&a.template, "t", "template.json", "required template file, -t <file.json>")
+	f.StringVar(&a.out, "o", "", "write to STDOUT or file, -o <file.json>")
 }
 
 func (a *applyCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+	if _, err := os.Stat(a.template); errors.Is(err, os.ErrNotExist) {
+		log.Println(a.Usage())
+		os.Exit(int(subcommands.ExitFailure))
+	}
+
 	var input interface{}
 	var template interface{}
 

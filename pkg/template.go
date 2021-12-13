@@ -1,6 +1,7 @@
 package jt
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
@@ -60,7 +61,8 @@ func apply(source interface{}, container, k, template reflect.Value) {
 			log.Fatalln(err)
 		}
 
-		iter := query.Run(source)
+		//iter := query.Run(source)
+		iter := query.RunWithContext(context.Background(), source)
 		for { // TODO: clean up this for loop
 			lookup, ok := iter.Next()
 			if !ok {
