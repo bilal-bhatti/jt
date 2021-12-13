@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"io/ioutil"
 	"log"
@@ -27,8 +28,12 @@ func (*applyCmd) Synopsis() string {
 func (*applyCmd) Usage() string {
 	log.Println("version: ", Version)
 	return `
-apply template to input:
-	example: jt apply -i input.json -t template.json -o out.json
+apply jq tranformation template to input
+
+	examples: 
+		cat input.json | jt apply -t template.json 
+		cat input.json | jt apply -t template.json -o template.json
+		jt apply -i input.json -t template.json -o template.json
 
 `
 }
@@ -40,6 +45,11 @@ func (a *applyCmd) SetFlags(f *flag.FlagSet) {
 }
 
 func (a *applyCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+	if _, err := os.Stat(a.template); errors.Is(err, os.ErrNotExist) {
+		log.Println(a.Usage())
+		os.Exit(int(subcommands.ExitFailure))
+	}
+
 	var input interface{}
 	var template interface{}
 

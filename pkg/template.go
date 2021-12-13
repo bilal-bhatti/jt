@@ -2,11 +2,12 @@ package jt
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"log"
 	"reflect"
 	"regexp"
 	"strconv"
+
+	"github.com/pkg/errors"
 
 	"github.com/itchyny/gojq"
 )

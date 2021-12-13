@@ -30,7 +30,11 @@ func (*templateCmd) Usage() string {
 
 	return `
 generate template from input
-	example: jt template -i input.json -o template.json
+
+	examples: 
+		cat input.json | jt template 
+		jt template -i input.json -o template
+		jt template -i input.json -o template.json
 
 `
 }

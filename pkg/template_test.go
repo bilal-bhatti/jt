@@ -26,6 +26,9 @@ func TestTemplatization(t *testing.T) {
 		expected := data.(map[string]interface{})["expected"]
 
 		Templatize(input)
+		Templatize(input)
+		Templatize(input)
+		Templatize(input)
 
 		assert.Equal(t, expected, input, "equal")
 	}

@@ -1,0 +1,13 @@
+{
+    "id": 12345,
+    "is_active": true,
+    "tags": [
+        "prod",
+        "db",
+        "internal"
+    ],
+    "build": {
+        "server": "mysql",
+        "version": "5.7"
+    }
+}

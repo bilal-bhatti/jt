@@ -41,7 +41,7 @@ func main() {
 		"apply":    true,
 	}
 
-	// Default to running the "template" command.
+	// Default to running the "apply" command.
 	if args := flag.Args(); len(args) == 0 || !allCmds[args[0]] {
 		os.Exit(int(tCmd.Execute(context.Background(), flag.CommandLine)))
 	}
