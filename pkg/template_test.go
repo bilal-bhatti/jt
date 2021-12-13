@@ -21,14 +21,15 @@ func TestTemplatization(t *testing.T) {
 		t.Error(err)
 	}
 
+	tmpl := Template{}
 	for _, data := range c.(map[string]interface{})["data"].([]interface{}) {
 		input := data.(map[string]interface{})["input"]
 		expected := data.(map[string]interface{})["expected"]
 
-		Templatize(input)
-		Templatize(input)
-		Templatize(input)
-		Templatize(input)
+		tmpl.Templatize(input)
+		tmpl.Templatize(input)
+		tmpl.Templatize(input)
+		tmpl.Templatize(input)
 
 		assert.Equal(t, expected, input, "equal")
 	}

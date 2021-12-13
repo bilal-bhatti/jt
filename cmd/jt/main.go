@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
 	"os"
 
 	"github.com/google/subcommands"
@@ -16,16 +17,18 @@ func orPanic(err error) {
 
 var Version = "DEV"
 var debug bool
-var language string
+var dsl string
 
 func main() {
-	flag.BoolVar(&debug, "d", false, "run with trace logging enalbed")
-	flag.StringVar(&language, "l", "q", "expression DSL [q (jq), p (json-path)], defaults to 'q'")
+	log.Println("version: ", Version)
+
+	flag.BoolVar(&debug, "d", false, "run with debug logging enabled")
+	//flag.StringVar(&dsl, "l", "", "expression dsl [q (jq), p (json-path)], defaults to 'q'")
 
 	flag.Parse()
 
-	tCmd := &templateCmd{debug: debug, language: language}
-	aCmd := &applyCmd{debug: debug, language: language}
+	tCmd := &templateCmd{debug: debug, dsl: dsl}
+	aCmd := &applyCmd{debug: debug, dsl: dsl}
 
 	subcommands.Register(subcommands.HelpCommand(), "")
 	subcommands.Register(subcommands.FlagsCommand(), "")

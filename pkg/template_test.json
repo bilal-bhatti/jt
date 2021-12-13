@@ -11,10 +11,10 @@
       },
       "expected": {
         "thing": {
-          "thing_type": ".thing.thing_type",
-          "id": ".thing.id",
-          "status": ".thing.status",
-          "test": ".thing.test"
+          "thing_type": "${.thing.thing_type}",
+          "id": "${.thing.id}",
+          "status": "${.thing.status}",
+          "test": "${.thing.test}"
         }
       }
     },
@@ -44,21 +44,21 @@
       "expected": {
         "things": [
           {
-            "thing_type": ".things.[0].thing_type",
-            "id": ".things.[0].id",
-            "status": ".things.[0].status",
-            "test": ".things.[0].test",
+            "thing_type": "${.things.[0].thing_type}",
+            "id": "${.things.[0].id}",
+            "status": "${.things.[0].status}",
+            "test": "${.things.[0].test}",
             "store": {
-              "id": ".things.[0].store.id"
+              "id": "${.things.[0].store.id}"
             }
           },
           {
-            "thing_type": ".things.[1].thing_type",
-            "id": ".things.[1].id",
-            "status": ".things.[1].status",
-            "test": ".things.[1].test",
+            "thing_type": "${.things.[1].thing_type}",
+            "id": "${.things.[1].id}",
+            "status": "${.things.[1].status}",
+            "test": "${.things.[1].test}",
             "store": {
-              "id": ".things.[1].store.id"
+              "id": "${.things.[1].store.id}"
             }
           }
         ]
@@ -72,10 +72,10 @@
         "test": true
       },
       "expected": {
-        "thing_type": ".thing_type",
-        "id": ".id",
-        "status": ".status",
-        "test": ".test"
+        "thing_type": "${.thing_type}",
+        "id": "${.id}",
+        "status": "${.status}",
+        "test": "${.test}"
       }
     },
     {
@@ -89,12 +89,12 @@
         "test": true
       },
       "expected": {
-        "thing_type": ".thing_type",
-        "id": ".id",
-        "status": ".status",
-        "test": ".test",
+        "thing_type": "${.thing_type}",
+        "id": "${.id}",
+        "status": "${.status}",
+        "test": "${.test}",
         "store": {
-          "id": ".store.id"
+          "id": "${.store.id}"
         }
       }
     },
@@ -123,26 +123,26 @@
         "test": true
       },
       "expected": {
-        "thing_type": ".thing_type",
-        "id": ".id",
-        "status": ".status",
+        "thing_type": "${.thing_type}",
+        "id": "${.id}",
+        "status": "${.status}",
         "names": [
           {
-            "fname": ".names.[0].fname",
-            "lname": ".names.[0].lname"
+            "fname": "${.names.[0].fname}",
+            "lname": "${.names.[0].lname}"
           },
           {
-            "fname": ".names.[1].fname",
-            "lname": ".names.[1].lname"
+            "fname": "${.names.[1].fname}",
+            "lname": "${.names.[1].lname}"
           }
         ],
-        "test": ".test",
+        "test": "${.test}",
         "tags": [
-          ".tags.[0]",
-          ".tags.[1]"
+          "${.tags.[0]}",
+          "${.tags.[1]}"
         ],
         "store": {
-          "id": ".store.id"
+          "id": "${.store.id}"
         }
       }
     },
@@ -175,30 +175,30 @@
         "test": true
       },
       "expected": {
-        "thing_type": ".thing_type",
-        "id": ".id",
-        "status": ".status",
+        "thing_type": "${.thing_type}",
+        "id": "${.id}",
+        "status": "${.status}",
         "names": [
           {
-            "fname": ".names.[0].fname",
-            "lname": ".names.[0].lname"
+            "fname": "${.names.[0].fname}",
+            "lname": "${.names.[0].lname}"
           },
           {
-            "fname": ".names.[1].fname",
-            "lname": ".names.[1].lname"
+            "fname": "${.names.[1].fname}",
+            "lname": "${.names.[1].lname}"
           }
         ],
-        "test": ".test",
+        "test": "${.test}",
         "tags": [
-          ".tags.[0]",
-          ".tags.[1]",
+          "${.tags.[0]}",
+          "${.tags.[1]}",
           {
-            "fname": ".tags.[2].fname",
-            "lname": ".tags.[2].lname"
+            "fname": "${.tags.[2].fname}",
+            "lname": "${.tags.[2].lname}"
           }
         ],
         "store": {
-          "id": ".store.id"
+          "id": "${.store.id}"
         }
       }
     },
@@ -209,9 +209,9 @@
         10
       ],
       "expected": [
-        ".[0]",
-        ".[1]",
-        ".[2]"
+        "${.[0]}",
+        "${.[1]}",
+        "${.[2]}"
       ]
     }
   ]

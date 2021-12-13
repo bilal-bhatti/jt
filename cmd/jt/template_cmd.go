@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"flag"
 	"github.com/pkg/errors"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -15,7 +14,7 @@ import (
 
 type templateCmd struct {
 	debug      bool
-	language   string
+	dsl        string
 	input, out string
 }
 
@@ -59,36 +58,25 @@ func (t *templateCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface
 			log.Fatal(errors.Errorf("failed to decode json from stdin, %v", err))
 		}
 	} else {
-		// TODO: use reader like above os.stdin instead of json.Unmarshal
-		yf, err := ioutil.ReadFile(t.input)
+		err := jt.ReadFile(t.input, &input)
 		if err != nil {
-			log.Fatal(errors.Errorf("failed to read input json file, %v", err))
+			log.Fatalln((err))
 		}
-
-		err = json.Unmarshal(yf, &input)
-
-		orPanic(err)
 	}
 
-	jt.Templatize(input)
+	tmpl := jt.Template{
+		Debug: t.debug,
+		DSL:   t.dsl,
+	}
 
-	bites, err := json.MarshalIndent(input, "", "\t")
+	err := tmpl.Templatize(input)
 	if err != nil {
-		log.Fatal(errors.Errorf("json marshal error, %v", err))
+		log.Fatalln(err)
 	}
 
-	bites = append(bites, byte('\n'))
-
-	if t.out != "" {
-		err = ioutil.WriteFile(t.out, bites, 0644)
-		if err != nil {
-			log.Fatal(errors.Errorf("failed to write file, %v", err))
-		}
-	} else {
-		_, err := os.Stdout.Write(bites)
-		if err != nil {
-			log.Fatal(errors.Errorf("failed to write to STDOUT, %v", err))
-		}
+	err = jt.WriteFile(t.out, input)
+	if err != nil {
+		log.Fatalln(err)
 	}
 
 	return subcommands.ExitSuccess

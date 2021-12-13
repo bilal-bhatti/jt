@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -15,7 +14,7 @@ import (
 
 type applyCmd struct {
 	debug                bool
-	language             string
+	dsl                  string
 	input, template, out string
 }
 
@@ -26,7 +25,6 @@ func (*applyCmd) Synopsis() string {
 }
 
 func (*applyCmd) Usage() string {
-	log.Println("version: ", Version)
 	return `
 apply jq tranformation template to input
 
@@ -47,7 +45,7 @@ func (a *applyCmd) SetFlags(f *flag.FlagSet) {
 func (a *applyCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	if _, err := os.Stat(a.template); errors.Is(err, os.ErrNotExist) {
 		log.Println(a.Usage())
-		os.Exit(int(subcommands.ExitFailure))
+		log.Fatalln(err)
 	}
 
 	var input interface{}
@@ -62,33 +60,34 @@ func (a *applyCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 
 	if a.input == "" {
 		err := json.NewDecoder(os.Stdin).Decode(&input)
-		orPanic(err)
+		if err != nil {
+			log.Fatalln(err)
+		}
 	} else {
-		yf, err := ioutil.ReadFile(a.input)
-		orPanic(err)
-
-		err = json.Unmarshal(yf, &input)
-		orPanic(err)
+		err := jt.ReadFile(a.input, &input)
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 
-	yf, err := ioutil.ReadFile(a.template)
-	orPanic(err)
+	err := jt.ReadFile(a.template, &template)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	err = json.Unmarshal(yf, &template)
-	orPanic(err)
+	tmpl := jt.Template{
+		Debug: a.debug,
+		DSL:   a.dsl,
+	}
 
-	jt.Apply(input, template)
+	err = tmpl.Apply(input, template)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	bites, err := json.MarshalIndent(template, "", "\t")
-	orPanic(err)
-	bites = append(bites, byte('\n'))
-
-	if a.out != "" {
-		err = ioutil.WriteFile(a.out, bites, 0644)
-		orPanic(err)
-	} else {
-		_, err := os.Stdout.Write(bites)
-		orPanic(err)
+	err = jt.WriteFile(a.out, template)
+	if err != nil {
+		log.Fatalln(err)
 	}
 
 	return subcommands.ExitSuccess

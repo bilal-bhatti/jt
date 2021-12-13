@@ -1,10 +1,6 @@
 package jt
 
-import (
-	"os"
-
-	"github.com/spyzhov/ajson"
-)
+import ()
 
 var json_str = `
 {
@@ -21,6 +17,7 @@ var json_str = `
 }
 `
 
+/*
 func json_test() {
 	template, _ := ajson.Unmarshal([]byte(json_str))
 	a_templatize(template)
@@ -69,3 +66,4 @@ func a_apply(input, template *ajson.Node) {
 		}
 	}
 }
+*/
