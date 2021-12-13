@@ -2,8 +2,10 @@ package jt
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"log"
 	"reflect"
+	"regexp"
 	"strconv"
 
 	"github.com/itchyny/gojq"
@@ -28,11 +30,11 @@ func templatize(prefix string, container, k, v reflect.Value) {
 			templatize(prefix+"."+k.String(), v, k, v.MapIndex(k))
 		}
 	default:
-		jq := prefix
+		exp := fmt.Sprintf("$%s{%s}", "q", prefix)
 		if k.Kind() == reflect.Int {
-			container.Index(int(k.Int())).Set(reflect.ValueOf(jq))
+			container.Index(int(k.Int())).Set(reflect.ValueOf(exp))
 		} else {
-			container.SetMapIndex(k, reflect.ValueOf(jq))
+			container.SetMapIndex(k, reflect.ValueOf(exp))
 		}
 	}
 }
@@ -40,6 +42,8 @@ func templatize(prefix string, container, k, v reflect.Value) {
 func Apply(input, template interface{}) {
 	apply(input, reflect.ValueOf(template), reflect.ValueOf(nil), reflect.ValueOf(template))
 }
+
+var ep = regexp.MustCompile("\\$([p,q]{0,1}){(.+)}")
 
 func apply(source interface{}, container, k, template reflect.Value) {
 	for template.Kind() == reflect.Ptr || template.Kind() == reflect.Interface {
@@ -55,33 +59,53 @@ func apply(source interface{}, container, k, template reflect.Value) {
 			apply(source, template, k, template.MapIndex(k))
 		}
 	default:
-		query, err := gojq.Parse(template.String())
-		if err != nil {
-			log.Fatalln(err)
+		matches := ep.FindStringSubmatch(template.String())
+		if len(matches) == 0 {
+			return // not an expression, skip
 		}
 
-		iter := query.Run(source)
-		for { // TODO: clean up this for loop
-			lookup, ok := iter.Next()
-			if !ok {
-				break
-			}
-			if err, ok := lookup.(error); ok {
-				log.Fatalln(err)
-			}
+		log.Printf("processing: %v", matches)
 
-			if lookup == nil {
-				log.Println(fmt.Errorf("query %s yielded nil result", template.String()))
-			}
+		results := query(matches[2], source)
 
-			if k.Kind() == reflect.Int {
-				t := container.Index(int(k.Int()))
-				if lookup != nil {
-					t.Set(reflect.ValueOf(lookup))
-				}
-			} else {
-				container.SetMapIndex(k, reflect.ValueOf(lookup))
+		if len(results) != 1 {
+			log.Printf("unexpected results, %v", results)
+			return
+		}
+
+		if results == nil {
+			log.Println(errors.Errorf("%s yielded nil result", template.String()))
+		}
+
+		if k.Kind() == reflect.Int {
+			t := container.Index(int(k.Int()))
+			if results[0] != nil {
+				t.Set(reflect.ValueOf(results[0]))
 			}
+		} else {
+			container.SetMapIndex(k, reflect.ValueOf(results[0]))
 		}
 	}
+}
+
+func query(exp string, source interface{}) []interface{} {
+	query, err := gojq.Parse(exp)
+	if err != nil {
+		log.Fatalln(errors.Errorf("expression parse error, %v", err))
+	}
+
+	results := make([]interface{}, 0)
+
+	iter := query.Run(source)
+	for {
+		lookup, ok := iter.Next()
+		if !ok {
+			break
+		}
+		if err, ok := lookup.(error); ok {
+			log.Fatalln(err) // TODO: handle error better
+		}
+		results = append(results, lookup)
+	}
+	return results
 }

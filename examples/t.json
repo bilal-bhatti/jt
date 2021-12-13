@@ -1,0 +1,6 @@
+{
+    "foo": "$q{.foo}",
+    "bar": "${.foo | .x}",
+    "nt": "string"
+}
+

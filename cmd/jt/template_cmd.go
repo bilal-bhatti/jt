@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"log"
 	"os"
@@ -14,6 +15,7 @@ import (
 
 type templateCmd struct {
 	debug      bool
+	language   string
 	input, out string
 }
 
@@ -34,7 +36,6 @@ generate template from input
 }
 
 func (t *templateCmd) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&t.debug, "d", false, "run with trace logging enabled")
 	f.StringVar(&t.input, "i", "", "input file")
 	f.StringVar(&t.out, "o", "", "out file")
 }
@@ -44,34 +45,46 @@ func (t *templateCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface
 
 	if t.debug {
 		log.Println("executing with args")
-		log.Println(" -d ", t.debug)
 		log.Println(" -i ", t.input)
 		log.Println(" -o ", t.out)
 	}
 
 	if t.input == "" {
 		err := json.NewDecoder(os.Stdin).Decode(&input)
-		orPanic(err)
+		if err != nil {
+			log.Fatal(errors.Errorf("failed to decode json from stdin, %v", err))
+		}
 	} else {
+		// TODO: use reader like above os.stdin instead of json.Unmarshal
 		yf, err := ioutil.ReadFile(t.input)
-		orPanic(err)
+		if err != nil {
+			log.Fatal(errors.Errorf("failed to read input json file, %v", err))
+		}
 
 		err = json.Unmarshal(yf, &input)
+
 		orPanic(err)
 	}
 
 	jt.Templatize(input)
 
 	bites, err := json.MarshalIndent(input, "", "\t")
-	orPanic(err)
+	if err != nil {
+		log.Fatal(errors.Errorf("json marshal error, %v", err))
+	}
+
 	bites = append(bites, byte('\n'))
 
 	if t.out != "" {
 		err = ioutil.WriteFile(t.out, bites, 0644)
-		orPanic(err)
+		if err != nil {
+			log.Fatal(errors.Errorf("failed to write file, %v", err))
+		}
 	} else {
 		_, err := os.Stdout.Write(bites)
-		orPanic(err)
+		if err != nil {
+			log.Fatal(errors.Errorf("failed to write to STDOUT, %v", err))
+		}
 	}
 
 	return subcommands.ExitSuccess

@@ -14,6 +14,7 @@ import (
 
 type applyCmd struct {
 	debug                bool
+	language             string
 	input, template, out string
 }
 
@@ -33,7 +34,6 @@ apply template to input:
 }
 
 func (a *applyCmd) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&a.debug, "d", false, "run with trace logging enabled")
 	f.StringVar(&a.input, "i", "", "input file")
 	f.StringVar(&a.template, "t", "", "template file")
 	f.StringVar(&a.out, "o", "", "out file")
@@ -45,7 +45,6 @@ func (a *applyCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 
 	if a.debug {
 		log.Println("executing with args")
-		log.Println(" -d ", a.debug)
 		log.Println(" -i ", a.input)
 		log.Println(" -t ", a.template)
 		log.Println(" -o ", a.out)
