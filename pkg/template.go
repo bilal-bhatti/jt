@@ -89,15 +89,19 @@ func (t Template) apply(source interface{}, container, k, template reflect.Value
 			}
 		}
 	default:
+		if template.Kind() != reflect.String {
+			return nil // not a lookup expression, skip
+		}
+
+		exp := strings.TrimSpace(template.String())
+
 		// matches:
 		// 0 : whole expression
 		// 1 : dsl option
 		// 2 : lookup expression
-		template := strings.TrimSpace(template.String())
-
-		matches := ep.FindStringSubmatch(template)
+		matches := ep.FindStringSubmatch(exp)
 		if len(matches) == 0 {
-			return nil // not an expression, skip
+			return nil // not a lookup expression, skip
 		}
 
 		if t.Debug {
@@ -119,7 +123,7 @@ func (t Template) apply(source interface{}, container, k, template reflect.Value
 
 		if t.Debug {
 			if results == nil {
-				log.Printf("nil result for expression: %s", template)
+				log.Printf("nil result for expression: %s", exp)
 			}
 		}
 
@@ -128,7 +132,7 @@ func (t Template) apply(source interface{}, container, k, template reflect.Value
 		// in the output
 		// - 0 results
 		// - more than 1 results
-		if len(results) != 1 { // TODO: handle multiple query results
+		if len(results) != 1 {
 			return errors.Errorf("unexpected results, %v", results)
 		}
 
@@ -146,14 +150,14 @@ func (t Template) apply(source interface{}, container, k, template reflect.Value
 }
 
 func query(exp string, source interface{}) ([]interface{}, error) {
-	jq, err := gojq.Parse(exp)
+	jq_exp, err := gojq.Parse(exp)
 	if err != nil {
 		return nil, errors.Errorf("query expression parse error, %v", err)
 	}
 
 	results := make([]interface{}, 0)
 
-	iter := jq.Run(source)
+	iter := jq_exp.Run(source)
 	for {
 		lookup, ok := iter.Next()
 		if !ok {
@@ -170,12 +174,12 @@ func query(exp string, source interface{}) ([]interface{}, error) {
 }
 
 func path(exp string, source interface{}) ([]interface{}, error) {
-	jp, err := jp.ParseString(exp)
+	jp_exp, err := jp.ParseString(exp)
 	if err != nil {
 		return nil, errors.Errorf("path expression parse error, %v", err)
 	}
 
-	results := jp.Get(source)
+	results := jp_exp.Get(source)
 
 	return results, nil
 }

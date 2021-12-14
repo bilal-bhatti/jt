@@ -1,3 +1,4 @@
 {
-    "name": "[.build.server, .build.version] | join(\" - \") "
+    "name": "${[.build.server, .build.version] | join(\" - \") }",
+    "count": 5
 }
