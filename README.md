@@ -5,7 +5,12 @@
 
 cli json tools
 
-jt is a cli wrapper around `jq` and `json-path` implementations, to enable json transformation. It allows the application of a template to data using `jq` and `json-path` expressions. 
+jt is a cli wrapper around `jq` and `json-path` implementations for transforming json documents.
+
+```
+github.com/itchyny/gojq
+github.com/ohler55/ojg
+```
 
 ## install
 ``` sh
@@ -40,5 +45,6 @@ apply template to input json
 ``` sh
 cat examples/i.json | jt apply -t examples/t.json
 jt apply -t examples/t.json -i examples/i.json
+jt apply -i examples/servers.json -t examples/template.json
 ```
 
