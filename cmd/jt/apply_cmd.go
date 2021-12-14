@@ -37,9 +37,9 @@ apply jq tranformation template to input
 }
 
 func (a *applyCmd) SetFlags(f *flag.FlagSet) {
-	f.StringVar(&a.input, "i", "", "input file")
-	f.StringVar(&a.template, "t", "", "template file")
-	f.StringVar(&a.out, "o", "", "out file")
+	f.StringVar(&a.input, "i", "", "read from STDIN or file, -i <file.json>")
+	f.StringVar(&a.template, "t", "template.json", "required template file, -t <file.json>")
+	f.StringVar(&a.out, "o", "", "write to STDOUT or file, -o <file.json>")
 }
 
 func (a *applyCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
