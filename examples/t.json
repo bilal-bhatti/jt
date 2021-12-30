@@ -2,6 +2,7 @@
     "foo": "$q{.foo}",
     "bar": "${.foo | .x}",
     "nt": "string",
-    "path": "$p{@.foo}"
+    "path": "$p{@.foo}",
+    "evar": "$e{TEST}"
 }
 

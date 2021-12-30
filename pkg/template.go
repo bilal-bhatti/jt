@@ -3,6 +3,7 @@ package jt
 import (
 	"fmt"
 	"log"
+	"os"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -67,7 +68,7 @@ func (t Template) Apply(input, template interface{}) error {
 	return t.apply(input, reflect.ValueOf(template), reflect.ValueOf(nil), reflect.ValueOf(template))
 }
 
-var ep = regexp.MustCompile("^\\$([p,q]{0,1}){(.+)}$")
+var ep = regexp.MustCompile("^\\$([p,q,e]{0,1}){(.+)}$")
 
 func (t Template) apply(source interface{}, container, k, template reflect.Value) error {
 	for template.Kind() == reflect.Ptr || template.Kind() == reflect.Interface {
@@ -112,8 +113,10 @@ func (t Template) apply(source interface{}, container, k, template reflect.Value
 
 		if matches[1] == "" || matches[1] == "q" {
 			lookup = query
-		} else {
+		} else if matches[1] == "p" {
 			lookup = path
+		} else if matches[1] == "e" {
+			lookup = env
 		}
 
 		results, err := lookup(matches[2], source)
@@ -182,4 +185,10 @@ func path(exp string, source interface{}) ([]interface{}, error) {
 	results := jp_exp.Get(source)
 
 	return results, nil
+}
+
+func env(exp string, source interface{}) ([]interface{}, error) {
+	result := os.Getenv(exp)
+
+	return []interface{}{result}, nil
 }
