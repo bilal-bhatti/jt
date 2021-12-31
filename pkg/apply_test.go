@@ -8,10 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTemplatization(t *testing.T) {
+func TestApply(t *testing.T) {
 	var c interface{}
 
-	yf, err := ioutil.ReadFile("template_test.json")
+	yf, err := ioutil.ReadFile("apply_test.json")
 	if err != nil {
 		t.Error(err)
 	}
@@ -24,10 +24,12 @@ func TestTemplatization(t *testing.T) {
 	tmpl := Template{}
 	for _, data := range c.(map[string]interface{})["data"].([]interface{}) {
 		input := data.(map[string]interface{})["input"]
+		template := data.(map[string]interface{})["template"]
 		expected := data.(map[string]interface{})["expected"]
 
-		tmpl.Templatize(input)
+		tmpl.Apply(input, template)
 
-		assert.Equal(t, expected, input, "equal")
+		assert.Equal(t, expected, template, "equal")
 	}
+
 }

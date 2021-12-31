@@ -3,6 +3,9 @@
     "bar": "${.foo | .x}",
     "nt": "string",
     "path": "$p{@.foo}",
-    "evar": "$e{TEST}"
+    "evar": "$e{TEST}",
+    "obj": {
+      "evar": "$e{TEST}"
+    }
 }
 

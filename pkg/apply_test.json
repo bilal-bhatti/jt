@@ -1,0 +1,27 @@
+{
+  "data": [
+    {
+      "input": {
+        "id": 2792456444,
+        "status": "pending",
+        "test": true
+      },
+      "template": {
+        "id": "${.id}",
+        "status": "${.status}",
+        "test": "${.test}",
+        "evar": "$e{TEST}",
+        "token": "Bearer $e{TOKEN}",
+        "query-concat": "query ${.status} *"
+      },
+      "expected": {
+        "id": 2792456444,
+        "status": "pending",
+        "test": true,
+        "evar": "1234567890ABC",
+        "token": "Bearer 1234567890ABC",
+        "query-concat": "query pending *"
+      }
+    }
+  ]
+}

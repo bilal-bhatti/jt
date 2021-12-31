@@ -68,7 +68,7 @@ func (t Template) Apply(input, template interface{}) error {
 	return t.apply(input, reflect.ValueOf(template), reflect.ValueOf(nil), reflect.ValueOf(template))
 }
 
-var ep = regexp.MustCompile("^\\$([p,q,e]{0,1}){(.+)}$")
+var ep = regexp.MustCompile(`\$([p,q,e]{0,1}){(.+)}`)
 
 func (t Template) apply(source interface{}, container, k, template reflect.Value) error {
 	for template.Kind() == reflect.Ptr || template.Kind() == reflect.Interface {
@@ -139,13 +139,22 @@ func (t Template) apply(source interface{}, container, k, template reflect.Value
 			return errors.Errorf("unexpected results, %v", results)
 		}
 
+		var result interface{} = nil
+		if results[0] != nil {
+			result = results[0]
+			if rt, ok := result.(string); ok {
+				resp := ep.ReplaceAll([]byte(exp), []byte(rt))
+				result = string(resp)
+			}
+		}
+
 		if k.Kind() == reflect.Int {
 			t := container.Index(int(k.Int()))
-			if results[0] != nil {
-				t.Set(reflect.ValueOf(results[0]))
+			if result != nil {
+				t.Set(reflect.ValueOf(result))
 			}
 		} else {
-			container.SetMapIndex(k, reflect.ValueOf(results[0]))
+			container.SetMapIndex(k, reflect.ValueOf(result))
 		}
 	}
 
