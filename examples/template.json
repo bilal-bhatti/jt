@@ -2,5 +2,6 @@
     "name": "${.data[0] | [.build.server, .build.version] | join(\" - \") }",
     "count": 5,
     "tags": "${.data[0].tags}",
-    "filtered": "$p{@.data[?(@.build.server == 'mysql')].tags}"
+    "filtered": "$p{@.data[?(@.build.server == 'mysql')]}",
+    "selected": "${.data[] | select(.build.server == \"mysql\")}"
 }

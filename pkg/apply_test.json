@@ -12,15 +12,21 @@
         "test": "${.test}",
         "evar": "$e{TEST}",
         "token": "Bearer $e{TOKEN}",
-        "query-concat": "query ${.status} *"
+        "query-concat": "query ${.status} *",
+        "multi": "$e{TEST}/$e{TOKEN}",
+        "prefix": "X $e{TEST}",
+        "suffix": "$e{TEST} X "
       },
       "expected": {
         "id": 2792456444,
         "status": "pending",
         "test": true,
         "evar": "1234567890ABC",
-        "token": "Bearer 1234567890ABC",
-        "query-concat": "query pending *"
+        "token": "Bearer 45396655-F25D-479E-8E02-2E1082C58C91",
+        "query-concat": "query pending *",
+        "multi": "1234567890ABC/45396655-F25D-479E-8E02-2E1082C58C91",
+        "prefix": "X 1234567890ABC",
+        "suffix": "1234567890ABC X "
       }
     }
   ]

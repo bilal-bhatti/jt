@@ -5,7 +5,11 @@
     "path": "$p{@.foo}",
     "evar": "$e{TEST}",
     "obj": {
-      "evar": "$e{TEST}"
+      "evar": "$e{TEST}",
+      "prefix": "X $e{TEST}",
+      "suffix": "$e{TEST} X",
+      "embedded": "X $e{TEST} X",
+      "multi": "$e{TEST}/$e{TOKEN}"
     }
 }
 

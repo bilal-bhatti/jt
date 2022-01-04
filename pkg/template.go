@@ -2,7 +2,6 @@ package jt
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"reflect"
 	"regexp"
@@ -68,7 +67,7 @@ func (t Template) Apply(input, template interface{}) error {
 	return t.apply(input, reflect.ValueOf(template), reflect.ValueOf(nil), reflect.ValueOf(template))
 }
 
-var ep = regexp.MustCompile(`\$([p,q,e]{0,1}){(.+)}`)
+var ep = regexp.MustCompile(`\$([p,q,e]{0,1}){(.+?)}`)
 
 func (t Template) apply(source interface{}, container, k, template reflect.Value) error {
 	for template.Kind() == reflect.Ptr || template.Kind() == reflect.Interface {
@@ -94,58 +93,32 @@ func (t Template) apply(source interface{}, container, k, template reflect.Value
 			return nil // not a lookup expression, skip
 		}
 
-		exp := strings.TrimSpace(template.String())
+		exp := template.String()
 
 		// matches:
 		// 0 : whole expression
 		// 1 : dsl option
 		// 2 : lookup expression
-		matches := ep.FindStringSubmatch(exp)
-		if len(matches) == 0 {
-			return nil // not a lookup expression, skip
-		}
 
-		if t.Debug {
-			log.Printf("processing: %v", matches)
-		}
-
-		var lookup func(string, interface{}) ([]interface{}, error)
-
-		if matches[1] == "" || matches[1] == "q" {
-			lookup = query
-		} else if matches[1] == "p" {
-			lookup = path
-		} else if matches[1] == "e" {
-			lookup = env
-		}
-
-		results, err := lookup(matches[2], source)
-		if err != nil {
-			return err
-		}
-
-		if t.Debug {
-			if results == nil {
-				log.Printf("nil result for expression: %s", exp)
-			}
-		}
-
-		// TODO: handle valid non-singular results
-		// currently this will leave the expression
-		// in the output
-		// - 0 results
-		// - more than 1 results
-		if len(results) != 1 {
-			return errors.Errorf("unexpected results, %v", results)
-		}
+		all_matches := ep.FindAllStringSubmatch(exp, -1)
 
 		var result interface{} = nil
-		if results[0] != nil {
-			result = results[0]
-			if rt, ok := result.(string); ok {
-				resp := ep.ReplaceAll([]byte(exp), []byte(rt))
-				result = string(resp)
+
+		switch len(all_matches) {
+		case 0:
+			// nothing to interpolate
+			return nil
+		case 1:
+			if len(all_matches[0][0]) == len(exp) {
+				// full string match, json object replacement
+				result = replace(all_matches[0], source)
+			} else {
+				// sub string match, string interpolation
+				result = interpolate(exp, all_matches, source)
 			}
+		default:
+			// multiple matches, string interpolation
+			result = interpolate(exp, all_matches, source)
 		}
 
 		if k.Kind() == reflect.Int {
@@ -161,7 +134,71 @@ func (t Template) apply(source interface{}, container, k, template reflect.Value
 	return nil
 }
 
-func query(exp string, source interface{}) ([]interface{}, error) {
+func etype(matches []string) evaluator {
+	if matches[1] == "" || matches[1] == "q" {
+		return query
+	} else if matches[1] == "p" {
+		return path
+	} else if matches[1] == "e" {
+		return env
+	}
+	return query
+}
+
+func replace(match []string, source interface{}) interface{} {
+	lookup := etype(match)
+
+	results, err := lookup(match[2], source)
+	if err != nil {
+		return nil
+	}
+
+	// TODO: handle valid non-singular results
+	// currently this will leave the expression
+	// in the output
+	// - 0 results
+	// - more than 1 results
+	if len(results) != 1 {
+		return errors.Errorf("unexpected results, %v", results)
+	}
+
+	return results[0]
+}
+
+func interpolate(template string, matches [][]string, source interface{}) interface{} {
+	out := string(template)
+
+	for _, match := range matches {
+		lookup := etype(match)
+
+		results, err := lookup(match[2], source)
+		if err != nil {
+			return nil
+		}
+
+		// TODO: handle valid non-singular results
+		// currently this will leave the expression
+		// in the output
+		// - 0 results
+		// - more than 1 results
+		if len(results) != 1 {
+			return errors.Errorf("unexpected results, %v", results)
+		}
+
+		result := results[0]
+
+		// TODO: result must be a string, fail otherwise
+		if rt, ok := result.(string); ok {
+			out = strings.ReplaceAll(out, match[0], rt)
+		}
+	}
+
+	return out
+}
+
+type evaluator func(string, interface{}) ([]interface{}, error)
+
+var query evaluator = func(exp string, source interface{}) ([]interface{}, error) {
 	jq_exp, err := gojq.Parse(exp)
 	if err != nil {
 		return nil, errors.Errorf("query expression parse error, %v", err)
@@ -185,7 +222,7 @@ func query(exp string, source interface{}) ([]interface{}, error) {
 	return results, nil
 }
 
-func path(exp string, source interface{}) ([]interface{}, error) {
+var path evaluator = func(exp string, source interface{}) ([]interface{}, error) {
 	jp_exp, err := jp.ParseString(exp)
 	if err != nil {
 		return nil, errors.Errorf("path expression parse error, %v", err)
@@ -196,8 +233,6 @@ func path(exp string, source interface{}) ([]interface{}, error) {
 	return results, nil
 }
 
-func env(exp string, source interface{}) ([]interface{}, error) {
-	result := os.Getenv(exp)
-
-	return []interface{}{result}, nil
+var env evaluator = func(exp string, source interface{}) ([]interface{}, error) {
+	return []interface{}{os.Getenv(exp)}, nil
 }
