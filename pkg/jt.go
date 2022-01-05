@@ -15,8 +15,7 @@ import (
 )
 
 type Tool struct {
-	Debug bool
-	// DSL   string
+	Verbose bool
 }
 
 func (t Tool) Templatize(input interface{}) error {
