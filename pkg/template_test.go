@@ -21,7 +21,7 @@ func TestTemplatization(t *testing.T) {
 		t.Error(err)
 	}
 
-	tmpl := Template{}
+	tmpl := Tool{}
 	for _, data := range c.(map[string]interface{})["data"].([]interface{}) {
 		input := data.(map[string]interface{})["input"]
 		expected := data.(map[string]interface{})["expected"]

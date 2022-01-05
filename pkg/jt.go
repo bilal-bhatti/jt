@@ -14,24 +14,16 @@ import (
 	"github.com/itchyny/gojq"
 )
 
-type templatizer interface {
-	Templatize(input interface{}) error
-}
-
-type applier interface {
-	Apply(input, template interface{}) error
-}
-
-type Template struct {
+type Tool struct {
 	Debug bool
-	DSL   string
+	// DSL   string
 }
 
-func (t Template) Templatize(input interface{}) error {
+func (t Tool) Templatize(input interface{}) error {
 	return t.templatize("", reflect.ValueOf(input), reflect.ValueOf(nil), reflect.ValueOf(input))
 }
 
-func (t Template) templatize(prefix string, container, k, v reflect.Value) error {
+func (t Tool) templatize(prefix string, container, k, v reflect.Value) error {
 	for v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
 		v = v.Elem()
 	}
@@ -52,7 +44,7 @@ func (t Template) templatize(prefix string, container, k, v reflect.Value) error
 			}
 		}
 	default:
-		exp := fmt.Sprintf("$%s{%s}", t.DSL, prefix)
+		exp := fmt.Sprintf("$%s{%s}", "q", prefix)
 		if k.Kind() == reflect.Int {
 			container.Index(int(k.Int())).Set(reflect.ValueOf(exp))
 		} else {
@@ -63,13 +55,13 @@ func (t Template) templatize(prefix string, container, k, v reflect.Value) error
 	return nil
 }
 
-func (t Template) Apply(input, template interface{}) error {
+func (t Tool) Apply(input, template interface{}) error {
 	return t.apply(input, reflect.ValueOf(template), reflect.ValueOf(nil), reflect.ValueOf(template))
 }
 
 var ep = regexp.MustCompile(`\$([p,q,e]{0,1}){(.+?)}`)
 
-func (t Template) apply(source interface{}, container, k, template reflect.Value) error {
+func (t Tool) apply(source interface{}, container, k, template reflect.Value) error {
 	for template.Kind() == reflect.Ptr || template.Kind() == reflect.Interface {
 		template = template.Elem()
 	}
